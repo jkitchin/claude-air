@@ -1,0 +1,20 @@
+* Libraries
+Adafruit-Blinka
+adafruit-circuitpython-bme680
+adafruit-circuitpython-sgp30
+adafruit-circuitpython-pm25
+adafruit-circuitpython-as7341
+adafruit-circuitpython-scd4x 
+jsonlines
+waitress
+flask
+matplotlib
+
+* Cron
+
+#+BEGIN_SRC sh
+*/15 * * * * ~/claude-air.py
+#+END_SRC
+
+
+
