@@ -1,4 +1,38 @@
+#+title: Claude air
+
+This is a Raspberry pi project to monitor the air in my office.
+
+I put these sensors on an I2C circuit on a Raspberry Pi 5. 
+
+- bme688 (https://www.adafruit.com/product/5046)
+- Adafruit PMSA003I https://www.adafruit.com/product/4632
+- Adafruit SCD-41 https://www.adafruit.com/product/5190
+- Adafruit SGP30 Air Quality Sensor Breakout - VOC and eCO2 https://www.adafruit.com/product/3709
+- Adafruit AS7341 10-Channel Light / Color Sensor Breakout https://www.adafruit.com/product/4698
+
+A python script runs by cron job every 15 minutes to log the data.
+
+* Tasks
+
+** TODO spg30 eCO2 level is flat at 400 ppm
+
+Maybe I am not using it right? The scd4x seems good.
+
+** TODO Temperature and humidity on bme688 and scd4x differ
+
+temperature by about 4 degrees, although very similar trends.
+
+humidity by 10%, and again similar trends.
+
+** TODO VOC measurements seem flat
+
+** TODO test if the air filter in my office changes the particle counts
+
 * Libraries
+
+I had to install these python libraries. 
+
+#+BEGIN_EXAMPLE
 Adafruit-Blinka
 adafruit-circuitpython-bme680
 adafruit-circuitpython-sgp30
@@ -9,12 +43,18 @@ jsonlines
 waitress
 flask
 matplotlib
+#+END_EXAMPLE
+
 
 * Cron
 
+This runs a Python script every 15 minutes that writes to ~/results.jsonl.
+
 #+BEGIN_SRC sh
-*/15 * * * * ~/claude-air.py
+*/15 * * * * ~/claude-air/claude-air.py
 #+END_SRC
 
 
+* The Flask app
 
+[[./app.py]] is a little web server that just makes graphics when you visit http://dha207f-air.cheme.local.cmu.edu:5000/ (this is only accessible on CMU campus or with VPN).
