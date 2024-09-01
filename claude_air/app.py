@@ -30,6 +30,7 @@ def home():
         temp1, temp2, humidity1, humidity2 = [], [], [], []
         pressure = []
 
+        pm1c, pm25c, pm10c = [], [], []
         pm03, pm05, pm10, pm25, pm50, pm100 = [], [], [], [], [], []
 
         voc1, voc2 = [], []
@@ -51,6 +52,10 @@ def home():
 
             voc1 += [entry['bme688']['voc']]
             voc2 += [entry['sgp30']['TVOC']]
+
+            pm1c += [entry['pm25']["pm10 standard"]]
+            pm25c += [entry['pm25']["pm25 standard"]]
+            pm10c += [entry['pm25']["pm100 standard"]]
 
             pm03 += [entry['pm25']['particles 03um']]
             pm05 += [entry['pm25']['particles 05um']]
@@ -110,12 +115,21 @@ def home():
     
     plt.tight_layout()
 
-    particlefig = plt.figure()
-    plt.plot(time, pm03, time, pm05, time, pm10, time, pm25, time, pm50, time, pm100)
-    plt.legend(['3um', '5um', '10u', '25um', '50um', '100um'], loc='best')
-    plt.xlabel('time')
-    plt.xticks(rotation=45)
-    plt.ylabel('particle counts')
+    particle_fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    ax1.plot(time, pm1c, time, pm25c, time, pm10c)
+    ax1.legend(['PM1.0', 'PM2.5', 'PM10'])
+    ax1.set_xlabel('time')
+    ax1.set_ylabel('PM concentration (standard)')
+    ax1.tick_params(axis='x', labelrotation=45)
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    
+    ax2.plot(time, pm03, time, pm05, time, pm10, time, pm25, time, pm50, time, pm100)
+    ax2.legend(['3um', '5um', '10u', '25um', '50um', '100um'], loc='best', ncol=2)
+    ax2.set_xlabel('time')
+    ax2.tick_params(axis='x', labelrotation=45)
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    ax2.set_ylabel('particle counts')
     plt.tight_layout()
     
     return f'''<html><body>
@@ -132,7 +146,7 @@ def home():
     <img src="data:image/png;base64, {b64(vocfig)}">
 
     <h1>Particles</h1>
-    <img src="data:image/png;base64, {b64(particlefig)}">
+    <img src="data:image/png;base64, {b64(particle_fig)}">
     </body></html>'''    
 
 def run():

@@ -79,7 +79,7 @@ def loop():
     start them up cold every 15 min.
 
     """
-
+    print(f'Starting loop at {time.asctime()}.')
     t0 = time.time()
 
     N = 0
@@ -99,13 +99,13 @@ def loop():
         N += 1
         # we want to write data approximately every 15 min (900 seconds)
         elapsed_time = time.time() - t0
-        if elapsed_time > 900:
+        if elapsed_time > (15 * 60):
             # trigger writing a file
             with jsonlines.open(os.path.expanduser('~/results.jsonl'), 'a') as f:
                 f.write(data)
                 print(f'Wrote a line after {N} cycles: {elapsed_time} secs')
 
-            # reset the time for the next cycle
+            # reset the time and counter for the next cycle
             t0 = time.time()
             N = 0
         

@@ -24,7 +24,7 @@ def cli():
     print(time.asctime())
     print()
     print('[bold magenta]# BME688 sensor[/bold magenta]')
-    print(f'T={data["bme688"]["temperature"]:1.1f}C\t'
+    print(f'T={data["bme688"]["temperature"]:1.1f} C\t'
           f'VOC={data["bme688"]["voc"]:1.2f}\t'
           f'Humidity={data["bme688"]["humidity"]:1.2f}\t'
           f'P={data["bme688"]["pressure"]:1.2f}')

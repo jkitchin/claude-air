@@ -11,27 +11,14 @@ I put these sensors on an I2C circuit on a Raspberry Pi 5. These are not cheap s
 - Adafruit SGP30 Air Quality Sensor Breakout - VOC and eCO2 https://www.adafruit.com/product/3709 ($18)
 - Adafruit AS7341 10-Channel Light / Color Sensor Breakout https://www.adafruit.com/product/4698 ($16)
 
-A python script (claude-air.py) runs by cron job every 15 minutes to log the data.
+There is a python package [[./claude_air/]] that provides everything.
 
-* Libraries
+See [[./pyproject.toml]] for the dependencies.
 
-I had to install these python libraries. 
-
-#+BEGIN_EXAMPLE
-Adafruit-Blinka
-adafruit-circuitpython-bme680
-adafruit-circuitpython-sgp30
-adafruit-circuitpython-pm25
-adafruit-circuitpython-as7341
-adafruit-circuitpython-scd4x 
-jsonlines
-waitress
-flask
-matplotlib
-rich
-#+END_EXAMPLE
 
 * The services
+
+These commands enable systemd to run the loop (which makes measurements) and the server (which makes figures).
 
 #+BEGIN_SRC sh
 sudo cp *.service /etc/systemd/system
@@ -48,22 +35,45 @@ sudo systemctl start air_loop.service
 sudo systemctl start air_serve.service
 #+END_SRC
 
-* The cli
+* The commands
 
-[[./cli.py]] is for seeing the current measurements.
+The only user command is ~air~ which prints the measurements in a terminal.
 
 * The Flask app
 
-[[./app.py]] is a little web server that just makes graphics when you visit http://dha207f-air.cheme.local.cmu.edu:5000/ (this is only accessible on CMU campus or with VPN).
+[[./app.py]] is a little web server that just makes graphics when you visit http://dha207f-air.cheme.local.cmu.edu:5000/ (this is only accessible on CMU campus or with VPN). Also it does not work with https.
 
-sometimes I have trouble running it, almost surely a venv issue. this almost works, but I get a lot of utf-8 garbage. It seems intermittent.
+
+* jq example
+
+You can extract data from the results file in the shell. I am not too familiar with jq, so this is as far as it goes.
 
 #+BEGIN_SRC sh
-PYTHONPATH=~/.venv/lib/python3.11/site-packages/:$PYTHONPATH flask run --host=0.0.0.0 --port=5000
+jq '.sgp30.eCO2' results.jsonl
 #+END_SRC
 
 
 * Tasks
+
+** TODO Temperature and humidity on bme688 and scd4x differ
+
+temperature by about 4 degrees, although very similar trends.
+
+humidity by 10%, and again similar trends.
+
+[2024-09-01 Sun] It seems like they are in better agreement in the continuous loop approach.
+
+** TODO TVOC on bme688 and from sgp30 are quite different
+
+I don't know what the units on these are, and both of them changed notably when I switched to the continuous loop. Maybe there is still some break in period? Or I am still not using them correctly.
+
+
+** TODO test if the air filter in my office changes the particle counts
+DEADLINE: <2024-09-03 Tue>
+
+** TODO setup logging
+
+now that it runs as a service, it is tricky to see what is happening.
 
 ** DONE spg30 eCO2 level is flat at 400 ppm
 CLOSED: [2024-09-01 Sun 10:12]
@@ -74,20 +84,13 @@ At https://www.adafruit.com/product/3709 it describes this as a hot plate MOX se
 
 I am not sure the eCO2 should be the same as atmospheric CO2, it is described as an equivalent CO2 for the TVOC, and they note it is not a true CO2 sensor. Finally, it probably needs to be used for tracking trends.
 
-** TODO Temperature and humidity on bme688 and scd4x differ
-
-temperature by about 4 degrees, although very similar trends.
-
-humidity by 10%, and again similar trends.
-
-** TODO VOC measurements seem flat
+** DONE VOC measurements seem flat
+CLOSED: [2024-09-01 Sun 15:06]
 
 Note for the BME688 there is this note (https://www.adafruit.com/product/5046):
 We recommend that you run this sensor for 48 hours when you first receive it to "burn it in", and then 30 minutes in the desired mode every time the sensor is in use. This is because the sensitivity levels of the sensor will change during early use, and the resistance will slowly rise over time as the MOX warms up to its baseline reading.
 
 It seems likely I should run this differently, e.g. maybe run it in a loop continuously, but only log data every 15 minutes.
-
-** TODO test if the air filter in my office changes the particle counts
 
 * Changelog
 
