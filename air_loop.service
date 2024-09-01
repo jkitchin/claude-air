@@ -1,0 +1,13 @@
+[Unit]                                               
+Description=Claude Air loop
+		                                               
+[Service]                                          
+Type=simple                                       
+Restart=always                                         
+RestartSec=1                                        
+User=jkitchin                                
+ExecStart=/home/jkitchin/.venv/bin/air_loop                         
+ExecStop=pkill air_loop
+	                         
+[Install]
+WantedBy=multi-user.target  

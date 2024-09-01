@@ -3,7 +3,7 @@ from flask import Flask, request
 import jsonlines
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
+import numpy as np
 
 import base64
 import io
@@ -89,7 +89,7 @@ def home():
     ax2.plot(time, humidity2)
     ax2.set_xlabel('time')
     ax2.set_ylabel('% humidity')
-    ax2.legend(['bme688', 'scd4x'])
+    ax2.legend(['BME688', 'scd4x'])
     ax2.tick_params(axis='x', labelrotation=45)
     ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     
@@ -102,11 +102,11 @@ def home():
 
     vocfig = plt.figure()
     plt.plot(time, voc1)
-    #plt.plot(time, voc2)
+    plt.plot(time, np.array(voc2)*1000)
     plt.xlabel('time')
     plt.xticks(rotation=45)
     plt.ylabel('VOC')
-    plt.legend(['bme688', 'sgp30'])
+    plt.legend(['bme688', 'sgp30.TVOC * 1000'])
     
     plt.tight_layout()
 

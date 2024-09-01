@@ -1,32 +1,17 @@
 #+title: Claude air
+#+author: John Kitchin
 
 This is a Raspberry pi project to monitor the air in my office.
 
-I put these sensors on an I2C circuit on a Raspberry Pi 5. 
+I put these sensors on an I2C circuit on a Raspberry Pi 5. These are not cheap sensors! The total cost of this (including the Raspberry Pi, connectors, etc.) is $250-300.
 
-- bme688 (https://www.adafruit.com/product/5046)
-- Adafruit PMSA003I https://www.adafruit.com/product/4632
-- Adafruit SCD-41 https://www.adafruit.com/product/5190
-- Adafruit SGP30 Air Quality Sensor Breakout - VOC and eCO2 https://www.adafruit.com/product/3709
-- Adafruit AS7341 10-Channel Light / Color Sensor Breakout https://www.adafruit.com/product/4698
+- BME688 https://www.adafruit.com/product/5046 ($20)
+- Adafruit PMSA003I https://www.adafruit.com/product/4632 ($45)
+- Adafruit SCD-41 True CO2  https://www.adafruit.com/product/5190 ($50)
+- Adafruit SGP30 Air Quality Sensor Breakout - VOC and eCO2 https://www.adafruit.com/product/3709 ($18)
+- Adafruit AS7341 10-Channel Light / Color Sensor Breakout https://www.adafruit.com/product/4698 ($16)
 
-A python script runs by cron job every 15 minutes to log the data.
-
-* Tasks
-
-** TODO spg30 eCO2 level is flat at 400 ppm
-
-Maybe I am not using it right? The scd4x seems good.
-
-** TODO Temperature and humidity on bme688 and scd4x differ
-
-temperature by about 4 degrees, although very similar trends.
-
-humidity by 10%, and again similar trends.
-
-** TODO VOC measurements seem flat
-
-** TODO test if the air filter in my office changes the particle counts
+A python script (claude-air.py) runs by cron job every 15 minutes to log the data.
 
 * Libraries
 
@@ -43,10 +28,80 @@ jsonlines
 waitress
 flask
 matplotlib
+rich
 #+END_EXAMPLE
 
+* The services
 
-* Cron
+#+BEGIN_SRC sh
+sudo cp *.service /etc/systemd/system
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo systemctl daemon-reload
+sudo systemctl enable air_loop.service
+sudo systemctl enable air_serve.service
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo systemctl start air_loop.service
+sudo systemctl start air_serve.service
+#+END_SRC
+
+* The cli
+
+[[./cli.py]] is for seeing the current measurements.
+
+* The Flask app
+
+[[./app.py]] is a little web server that just makes graphics when you visit http://dha207f-air.cheme.local.cmu.edu:5000/ (this is only accessible on CMU campus or with VPN).
+
+sometimes I have trouble running it, almost surely a venv issue. this almost works, but I get a lot of utf-8 garbage. It seems intermittent.
+
+#+BEGIN_SRC sh
+PYTHONPATH=~/.venv/lib/python3.11/site-packages/:$PYTHONPATH flask run --host=0.0.0.0 --port=5000
+#+END_SRC
+
+
+* Tasks
+
+** DONE spg30 eCO2 level is flat at 400 ppm
+CLOSED: [2024-09-01 Sun 10:12]
+
+I found I can get measurements for the H2 and Ethanol settings (in ticks, uncalibrated), and if I run a loop long enough eventually I start seeing some readings for eCO2 and TVOC that are not zero. It seems like I have to make something like 200-300 measurements maybe, and then we get non-zero measurements.
+
+At https://www.adafruit.com/product/3709 it describes this as a hot plate MOX sensor, so it needs to be hot enough.
+
+I am not sure the eCO2 should be the same as atmospheric CO2, it is described as an equivalent CO2 for the TVOC, and they note it is not a true CO2 sensor. Finally, it probably needs to be used for tracking trends.
+
+** TODO Temperature and humidity on bme688 and scd4x differ
+
+temperature by about 4 degrees, although very similar trends.
+
+humidity by 10%, and again similar trends.
+
+** TODO VOC measurements seem flat
+
+Note for the BME688 there is this note (https://www.adafruit.com/product/5046):
+We recommend that you run this sensor for 48 hours when you first receive it to "burn it in", and then 30 minutes in the desired mode every time the sensor is in use. This is because the sensitivity levels of the sensor will change during early use, and the resistance will slowly rise over time as the MOX warms up to its baseline reading.
+
+It seems likely I should run this differently, e.g. maybe run it in a loop continuously, but only log data every 15 minutes.
+
+** TODO test if the air filter in my office changes the particle counts
+
+* Changelog
+
+** [2024-09-01 Sun] move away from cron to constant loop
+
+Based on some observations above, it seems like it is better if this runs continuously. I separated out the measurement code into [[./sensors.py]], and it runs a loop continuously. About every 900 seconds it writes data, and otherwise does nothing with it in each loop. The idea is to have the sensors constantly "warm" so they are stable. 
+
+The cli is a little different now, it only reads the last measured datapoint (including creating a new one if it is in mid cycle. This is done with a file flag. 
+
+* archive
+
+** Cron
+
+[2024-09-01 Sun] I don't use this anymore.
 
 This runs a Python script every 15 minutes that writes to ~/results.jsonl.
 
@@ -54,7 +109,3 @@ This runs a Python script every 15 minutes that writes to ~/results.jsonl.
 */15 * * * * ~/claude-air/claude-air.py
 #+END_SRC
 
-
-* The Flask app
-
-[[./app.py]] is a little web server that just makes graphics when you visit http://dha207f-air.cheme.local.cmu.edu:5000/ (this is only accessible on CMU campus or with VPN).

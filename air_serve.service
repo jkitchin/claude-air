@@ -1,0 +1,13 @@
+[Unit]                                               
+Description=Claude Air server
+		                                               
+[Service]                                          
+Type=simple                                       
+Restart=always                                         
+RestartSec=1                                        
+User=jkitchin                                
+ExecStart=/home/jkitchin/.venv/bin/air_serve                          
+ExecStop=pkill air_serve
+	                         
+[Install]
+WantedBy=multi-user.target  
