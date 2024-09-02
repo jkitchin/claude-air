@@ -8,10 +8,13 @@ import numpy as np
 import base64
 import io
 import datetime
+import time as _time
 
 app = Flask(__name__)
 
 def b64(p):
+    """Take a figure p, and return a base64 encoded string for html.
+    """
     img = io.BytesIO()
     p.savefig(img, format='png')
     b64 = base64.b64encode(img.getvalue()).decode('utf-8')
@@ -21,6 +24,8 @@ def b64(p):
 
 @app.route('/')
 def home():
+    """Retrieve data, make plots and render an HTML page.
+    """
     
     with jsonlines.open('/home/jkitchin/results.jsonl') as f:
         time = []
@@ -100,7 +105,7 @@ def home():
     
     ax3.plot(time, pressure)
     ax3.set_xlabel('time')
-    ax3.set_ylabel('pressure')
+    ax3.set_ylabel('pressure (hPa)')
     ax3.tick_params(axis='x', labelrotation=45)
     ax3.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.tight_layout()
@@ -125,7 +130,7 @@ def home():
     ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     
     ax2.plot(time, pm03, time, pm05, time, pm10, time, pm25, time, pm50, time, pm100)
-    ax2.legend(['3um', '5um', '10u', '25um', '50um', '100um'], loc='best', ncol=2)
+    ax2.legend(['3um', '5um', '10um', '25um', '50um', '100um'], loc='best', ncol=2)
     ax2.set_xlabel('time')
     ax2.tick_params(axis='x', labelrotation=45)
     ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
@@ -133,6 +138,23 @@ def home():
     plt.tight_layout()
     
     return f'''<html><body>
+    <h1>Claude Air monitor<br>{_time.asctime()}</h1>
+    <table border="1">
+    <tr><th>Temp (C)</th>
+    <th>CO2 (ppm)</th>
+    <th>VOC</th>
+    <th>PM2.5</th>
+    <th>Light</th>
+    </tr>
+    
+    <tr><th>{temp1[-1]:1.1f}</th>
+    <th>{co2_2[-1]}</th>
+    <th>{voc2[-1]}</th>
+    <th>{pm25c[-1]}</th>
+    <th>{light[-1]}</th>
+    </tr>
+    </table>
+
     <h1>Light measurements</h1>
     <img src="data:image/png;base64, {b64(p1)}">
 

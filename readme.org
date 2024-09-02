@@ -63,6 +63,8 @@ humidity by 10%, and again similar trends.
 
 [2024-09-01 Sun] It seems like they are in better agreement in the continuous loop approach.
 
+https://github.com/adafruit/Adafruit_CircuitPython_BME680/blob/20a1e9321fa712068206cfc24f9c3b3c895893de/examples/bme680_simpletest.py#L18 notes the sensor may need a constant offset.
+
 ** TODO TVOC on bme688 and from sgp30 are quite different
 
 I don't know what the units on these are, and both of them changed notably when I switched to the continuous loop. Maybe there is still some break in period? Or I am still not using them correctly.
@@ -74,6 +76,10 @@ DEADLINE: <2024-09-03 Tue>
 ** TODO setup logging
 
 now that it runs as a service, it is tricky to see what is happening.
+
+** TODO Add the cli output to the app. 
+
+might as well get the latest result there.
 
 ** DONE spg30 eCO2 level is flat at 400 ppm
 CLOSED: [2024-09-01 Sun 10:12]

@@ -10,6 +10,7 @@ import jsonlines
 import os
 
 # https://learn.adafruit.com/adafruit-bme680-humidity-temperature-barometic-pressure-voc-gas/python-circuitpython
+# https://github.com/adafruit/Adafruit_CircuitPython_BME680/blob/main/adafruit_bme680.py
 import adafruit_bme680
 import adafruit_sgp30
 # https://learn.adafruit.com/adafruit-as7341-10-channel-light-color-sensor-breakout/python-circuitpython
@@ -22,6 +23,10 @@ from adafruit_pm25.i2c import PM25_I2C
 
 i2c = board.I2C()
 bme688 = adafruit_bme680.Adafruit_BME680_I2C(i2c)
+
+# I got this from Microsoft Copilot. it was 1013.23 hPa
+bme680.sea_level_pressure = 1017.0
+
 
 sgp30 = adafruit_sgp30.Adafruit_SGP30(i2c)
 sgp30.iaq_init()
@@ -41,9 +46,10 @@ def one_cycle():
     data = {'t0': t0, 'ascime': time.asctime()}
 
     data['bme688'] = {'temperature': bme688.temperature,
-                  'humidity': bme688.humidity,
-                  'pressure': bme688.pressure,
-                  'voc': bme688.gas}
+                      'humidity': bme688.humidity,
+                      'pressure': bme688.pressure,
+                      'voc': bme688.gas,
+                      'altitude': bme688.altitude}
 
     eCO2, TVOC = np.mean([sgp30.iaq_measure() for i in range(20)], axis=0)
     H2, Ethanol = np.mean([sgp30.raw_measure() for i in range(20)], axis=0)
