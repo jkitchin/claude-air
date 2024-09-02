@@ -90,7 +90,9 @@ def home():
 
     p3, (ax1, ax2, ax3) = plt.subplots(1, 3)
     p3.set_figwidth(10, 5)
-    ax1.plot(time, temp1)
+    # I subtract 0.5 to make these measurements more similar. It is not obvious
+    # which one is "right" though.
+    ax1.plot(time, np.array(temp1) - 0.5)
     ax1.plot(time, temp2)
     ax1.legend(['bme688', 'scd4x'])
     ax1.set_xlabel('time')
@@ -114,12 +116,13 @@ def home():
     plt.tight_layout()
 
     vocfig = plt.figure()
-    plt.plot(time, voc1)
-    plt.plot(time, np.array(voc2)*1000)
+    # I scale the bme688 value ti be about the same as the sgp30 value.
+    plt.plot(time, np.array(voc1) / 20000)
+    plt.plot(time, np.array(voc2))
     plt.xlabel('time')
     plt.xticks(rotation=45)
     plt.ylabel('VOC')
-    plt.legend(['bme688', 'sgp30.TVOC * 1000'])
+    plt.legend(['bme688 / 2e5', 'sgp30.TVOC'])
     
     plt.tight_layout()
 
@@ -148,6 +151,7 @@ def home():
     
     return f'''<html><body>
     <h1>Claude Air monitor<br>{_time.asctime()}</h1>
+    Note: the output here is not scaled like some of the values in the graphs below.
     <pre>{out.getvalue()}</pre>
     
     <h1>Light measurements</h1>
