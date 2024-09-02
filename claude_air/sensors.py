@@ -25,7 +25,7 @@ i2c = board.I2C()
 bme688 = adafruit_bme680.Adafruit_BME680_I2C(i2c)
 
 # I got this from Microsoft Copilot. it was 1013.23 hPa
-bme680.sea_level_pressure = 1017.0
+bme688.sea_level_pressure = 1017.0
 
 
 sgp30 = adafruit_sgp30.Adafruit_SGP30(i2c)

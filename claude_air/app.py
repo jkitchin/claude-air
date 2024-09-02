@@ -9,6 +9,9 @@ import base64
 import io
 import datetime
 import time as _time
+import io
+from contextlib import redirect_stdout
+from .cli import cli
 
 app = Flask(__name__)
 
@@ -136,25 +139,17 @@ def home():
     ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     ax2.set_ylabel('particle counts')
     plt.tight_layout()
+
+    # get last measure
+    out = io.StringIO()
+    with redirect_stdout(out):
+        cli()
+    
     
     return f'''<html><body>
     <h1>Claude Air monitor<br>{_time.asctime()}</h1>
-    <table border="1">
-    <tr><th>Temp (C)</th>
-    <th>CO2 (ppm)</th>
-    <th>VOC</th>
-    <th>PM2.5</th>
-    <th>Light</th>
-    </tr>
+    <pre>{out.getvalue()}</pre>
     
-    <tr><th>{temp1[-1]:1.1f}</th>
-    <th>{co2_2[-1]}</th>
-    <th>{voc2[-1]}</th>
-    <th>{pm25c[-1]}</th>
-    <th>{light[-1]}</th>
-    </tr>
-    </table>
-
     <h1>Light measurements</h1>
     <img src="data:image/png;base64, {b64(p1)}">
 
