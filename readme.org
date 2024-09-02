@@ -5,11 +5,19 @@ This is a Raspberry pi project to monitor the air in my office.
 
 I put these sensors on an I2C circuit on a Raspberry Pi 5. These are not cheap sensors! The total cost of this (including the Raspberry Pi, connectors, etc.) is $250-300.
 
+I run this on a Raspberry Pi5 with 8GB RAM. That is probably overkill, but it runs a web server and does analysis with matplotlib, and I wasn't sure what it would need.
+
+These are the sensors
+
 - BME688 https://www.adafruit.com/product/5046 ($20)
 - Adafruit PMSA003I https://www.adafruit.com/product/4632 ($45)
 - Adafruit SCD-41 True CO2  https://www.adafruit.com/product/5190 ($50)
 - Adafruit SGP30 Air Quality Sensor Breakout - VOC and eCO2 https://www.adafruit.com/product/3709 ($18)
 - Adafruit AS7341 10-Channel Light / Color Sensor Breakout https://www.adafruit.com/product/4698 ($16)
+- Swirly mounting https://www.adafruit.com/product/5774
+- 
+Here is a picture of the device ([2024-09-02 Mon])
+[[./claude-air.png]]
 
 There is a python package [[./claude_air/]] that provides everything.
 
