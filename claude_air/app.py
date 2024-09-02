@@ -151,8 +151,9 @@ def home():
     
     return f'''<html><body>
     <h1>Claude Air monitor<br>{_time.asctime()}</h1>
-    <a href="https://github.com/jkitchin/claude-air>https://github.com/jkitchin/claude-air</a>
     <br>
+    <a href="https://github.com/jkitchin/claude-air">https://github.com/jkitchin/claude-air</a>
+    <br><br>
     Note: the output here is not scaled like some of the values in the graphs below.
     <pre>{out.getvalue()}</pre>
     
